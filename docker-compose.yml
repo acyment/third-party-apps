@@ -87,4 +87,6 @@ services:
       - 'traefik.http.routers.easyappointments.entrypoints=websecure'
       - 'traefik.http.routers.easyappointments.tls=true'
       - 'traefik.http.routers.easyappointments.tls.certresolver=cloudflare'
+      - 'traefik.http.routers.easyappointments.tls.domains[0].main=cyment.com'
+      - 'traefik.http.routers.easyappointments.tls.domains[0].sans=*.cyment.com'
       - 'traefik.http.services.easyappointments.loadbalancer.server.port=8888'
