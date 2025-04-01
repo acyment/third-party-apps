@@ -52,7 +52,7 @@ services:
       - ./pingvin/data:/opt/app/backend/data
       - ./pingvin/uploads:/opt/app/backend/uploads
     environment:
-      - TZ=Europe/Berlin # Change to your timezone
+      - TZ=America/Argentina/Buenos_Aires
       - NODE_ENV=production
       - NEXT_PUBLIC_BASE_URL=https://fileshare.cyment.com
       - NEXT_PUBLIC_DISABLE_HTTPS=true
@@ -80,7 +80,7 @@ services:
       - ./easyappointments/config:/var/www/html/config
       - ./easyappointments/uploads:/var/www/html/uploads
     environment:
-      - TZ=Europe/Berlin # Change to your timezone
+      - TZ=America/Argentina/Buenos_Aires
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.easyappointments.rule=Host(`calendar.cyment.com`)'
