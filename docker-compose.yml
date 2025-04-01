@@ -63,3 +63,28 @@ services:
       - 'traefik.http.routers.pingvin.tls=true'
       - 'traefik.http.routers.pingvin.tls.certresolver=cloudflare'
       - 'traefik.http.services.pingvin.loadbalancer.server.port=3000'
+
+  # EasyAppointments - Booking Calendar
+  easyappointments:
+    image: alextselegidis/easyappointments:latest
+    healthcheck:
+      test: [ 'CMD', 'curl', '-f', 'http://localhost:8888' ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    container_name: easyappointments
+    restart: unless-stopped
+    networks:
+      - traefik-net
+    volumes:
+      - ./easyappointments/config:/var/www/html/config
+      - ./easyappointments/uploads:/var/www/html/uploads
+    environment:
+      - TZ=Europe/Berlin # Change to your timezone
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.easyappointments.rule=Host(`calendar.cyment.com`)'
+      - 'traefik.http.routers.easyappointments.entrypoints=websecure'
+      - 'traefik.http.routers.easyappointments.tls=true'
+      - 'traefik.http.routers.easyappointments.tls.certresolver=cloudflare'
+      - 'traefik.http.services.easyappointments.loadbalancer.server.port=8888'
