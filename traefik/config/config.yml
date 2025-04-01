@@ -1,0 +1,22 @@
+# Traefik v3 dynamic configuration
+
+# HTTP configuration
+http:
+  middlewares:
+    secureHeaders:
+      headers:
+        frameDeny: true
+        sslRedirect: false
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 31536000
+        customFrameOptionsValue: "SAMEORIGIN"
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
+
+    # Compression middleware
+    compress:
+      compress: {}

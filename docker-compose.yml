@@ -1,0 +1,65 @@
+networks:
+  traefik-net:
+    name: traefik-net
+    external: false
+
+services:
+  # Traefik Reverse Proxy
+  traefik:
+    image: traefik:latest
+    healthcheck:
+      test: [ 'CMD', 'traefik', 'healthcheck' ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - traefik-net
+    ports:
+      - '80:80' # HTTP
+      - '443:443' # HTTPS
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/config/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik/config/config.yml:/etc/traefik/config.yml:ro
+      - ./traefik/acme:/etc/traefik/acme:ro
+      - ./traefik/acme/acme.json:/etc/traefik/acme/acme.json
+    environment:
+      #- CF_API_EMAIL=${CF_API_EMAIL}
+      #- CF_API_KEY=${CF_API_KEY}
+      # OR if using API token (recommended)
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
+    labels:
+      - 'traefik.enable=true'
+
+  # Pingvin Share - File Sharing Application
+  pingvin:
+    image: stonith404/pingvin-share:latest
+    healthcheck:
+      test: [ 'CMD', 'curl', '-f', 'http://localhost:3000/api/health' ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    container_name: pingvin
+    restart: unless-stopped
+    networks:
+      - traefik-net
+    volumes:
+      - ./pingvin/data:/opt/app/backend/data
+      - ./pingvin/uploads:/opt/app/backend/uploads
+    environment:
+      - TZ=Europe/Berlin # Change to your timezone
+      - NODE_ENV=production
+      - NEXT_PUBLIC_BASE_URL=https://fileshare.cyment.com
+      - NEXT_PUBLIC_DISABLE_HTTPS=true
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.pingvin.rule=Host(`fileshare.cyment.com`)'
+      - 'traefik.http.routers.pingvin.entrypoints=websecure'
+      - 'traefik.http.routers.pingvin.tls=true'
+      - 'traefik.http.routers.pingvin.tls.certresolver=cloudflare'
+      - 'traefik.http.services.pingvin.loadbalancer.server.port=3000'
